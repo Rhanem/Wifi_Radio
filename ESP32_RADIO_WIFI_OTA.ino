@@ -1,78 +1,40 @@
+////////////////////////////////////////////////                 Librerias Incluidas                /////////////////////////////////////////
+#include <Wire.h>
 #include <WiFi.h>
+#include "WiFi.h"
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-#include "credentials.h"
-#include "time.h"
-#include "logo.h"
-
-//////////////////   Servidor 1      /////////
-
-WiFiServer server(80);
-char linebuf[80];
-int charcount=0;
-
-/////////////////////////////////////////////
-
-#include <WiFiClient.h>
-#include <time.h>
-                
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-////////////////////////////// rotary 1 ///////////////////
-
-
-////////////////////////////////////////////////                 Libreria Incluida                 /////////////////////////////////////////
-#include <Wire.h>
-
-#include "WiFi.h"
-#include "vs1053_ext.h"
-
-#include "SPI.h"
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
+#include "SPI.h"
+#include "vs1053_ext.h"
+#include "time.h"
+#include <WiFiClient.h>
+#include <time.h>
 
-//#include "menu_info_azulmarino_cortado.h"
-//#include "menu_info_azulmarino.h"
-//#include "menu_info_lineas.h"
-//#include "fondo_marino.h"
-//#include "iconos.h"
+#include "credentials.h"
+
+#include "logo.h"
 #include "icono_sd_bluetooth_control_otros.h"
-int potPin = 35;
-// int Bat = 33;
 
+////////////////////////////////////////////////                    Modulos Incluidos                     //////////////////////////////////////////
 
-int lectura;
-int v = 0;
-int carga;
-int porcentaje = 0;
-float escala = 100;
-int nivel;
-int cuadro = 2;
-
-////////////////////////////////////////////////                    Modulo Incluido                     //////////////////////////////////////////
-
-//PIN OF ILI9341     TO ESP32                                                  // TFT ILI9341 display 
-#define _cs             22       // goes to TFT CS
-#define _dc             21       // goes to TFT DC
-#define _mosi           12       // goes to TFT MOSI
-#define _sclk           14       // goes to TFT SCK/CLK
-#define _rst            9       // ESP to TFT RESET
-#define _miso                    // Not connected
-//       3.3V                    // Goes to TFT LED  
-//       5v                      // Goes to TFT Vcc
-//       Gnd                     // Goes to TFT Gnd        
+//PIN OF ILI9341     TO ESP32     // TFT ILI9341 display 
+#define _cs             22        // goes to TFT CS
+#define _dc             21        // goes to TFT DC
+#define _mosi           12        // goes to TFT MOSI
+#define _sclk           14        // goes to TFT SCK/CLK
+#define _rst            9         // ESP to TFT RESET
+#define _miso                     // Not connected
+//       3.3V                     // Goes to TFT LED  
+//       5v                       // Goes to TFT Vcc
+//       Gnd                      // Goes to TFT Gnd        
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(_cs, _dc, _mosi, _sclk, _rst);
 
 
-//PIN OF VS1053     TO     ESP32                                                // VS1053 Media player
+//PIN OF VS1053     TO     ESP32  
 #define VS1053_CS           2            
 #define VS1053_DCS          4
 #define VS1053_DREQ         36
@@ -80,8 +42,67 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(_cs, _dc, _mosi, _sclk, _rst);
 VS1053 mp3(VS1053_CS, VS1053_DCS, VS1053_DREQ);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////                 Declaraciones                /////////////////////////////////////////
+int potPin = 35;
+// int Bat = 33;
+int lectura;
+int v = 0;
+int carga;
+int porcentaje = 0;
+float escala = 100;
+int nivel;
+int cuadro = 2;
 const char* station;
 const char* info;
+int volume = 0;
+int Canal = 0;
+int estacion = 0;
+int coneccion = 1;
+int ap = 2;
+int pass = 1;
+
+String lista_conecciones[] = {
+"EEEEE",
+"EEEEE",
+"EEEEE",
+"EEEEE",
+};
+
+String lista_passes[] = {
+"99999999",
+"99999999",
+"99999999",
+"99999999",
+};
+
+String lista_aps[] = {
+"AJUSTES",
+"  SD",
+" RADIO",
+"BLUET.",
+"CONTROL",
+"OTROS..",
+};
+
+String lista_aplicaciones[] = {
+"aplicacion_ajustes()",
+"aplicacion_sd()",
+"aplicacion_radio()",
+"aplicacion_bluetooth()",
+"aplicacion_control()",
+"aplicacion_otros()",
+};
+
+
+int lista_cuadros[] = {
+10,
+60,
+115,
+168,
+222,
+273,
+};
 
 String lista_canales[] = {
 "http://cristina.torontocast.com:8095/stream/;",
@@ -182,111 +203,7 @@ String lista_canales[] = {
 "",
 "",
 "",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
 };
-
-
-
-
-///////////////////////////////////////////////////                      Defineciones                            //////////////////////////////////////
-
-#define BLACK           0X0000
-#define RED             0xF800
-#define GREEN           0x07E0
-#define CELESTE         0x79E0
-
-#define BLUE2           0x0110
-#define BLUE            0x102E
-#define CYAN            0x07FF
-#define CYAN2           0x3333
-
-#define YELLOW          0xFFE0 
-#define ORANGE          0xFD20
-#define NARANJO         0x1358
-#define GREENYELLOW     0xAFE5 
-#define DARKGREEN       0x03E0
-#define WHITE           0xFFFF
-#define GRIS            0x5AEB 
-#define VIOLETA         0xFCFD
-#define DARKGREY        0x7BEF  
-#define AZULOSCURO      0x0005
-
-
-
-#define BARRA 4
-#define VOLUMEN BARRA*porcentaje
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-int volume = 0;
-int Canal = 0;
-int estacion = 0;
-int coneccion = 1;
-
-int ap = 2;
-int pass = 1;
-
-String lista_conecciones[] = {
-"EEEEE",
-"EEEEE",
-"EEEEE",
-"EEEEE",
-};
-
-String lista_passes[] = {
-"99999999",
-"99999999",
-"99999999",
-"99999999",
-};
-
-String lista_aps[] = {
-"AJUSTES",
-"  SD",
-" RADIO",
-"BLUET.",
-"CONTROL",
-"OTROS..",
-};
-
-String lista_aplicaciones[] = {
-"aplicacion_ajustes()",
-"aplicacion_sd()",
-"aplicacion_radio()",
-"aplicacion_bluetooth()",
-"aplicacion_control()",
-"aplicacion_otros()",
-};
-
-
-int lista_cuadros[] = {
-10,
-60,
-115,
-168,
-222,
-273,
-};
-
-
-
-///////////////////////////////////////////////////                       Parametros                         ////////////////////////////////////////////
-
-
-
-/////////////
   
 const int boton1 = 15;                                                  // Boton Bajar Volumen
 const int boton2 = 13;                                                  // Boton Subir Volumen
@@ -310,9 +227,38 @@ int estadoPass;
 
 int activar_bt = 32;
 
+//////////////////   Servidor 1      /////////
+WiFiServer server(80);  
+char linebuf[80];        
+int charcount=0;        
+/////////////////////////////////////////////
+
+///////////////////////////////////////////////////                      Defineciones                            //////////////////////////////////////
+
+#define BLACK           0X0000
+#define RED             0xF800
+#define GREEN           0x07E0
+#define CELESTE         0x79E0
+#define BLUE2           0x0110
+#define BLUE            0x102E
+#define CYAN            0x07FF
+#define CYAN2           0x3333
+#define YELLOW          0xFFE0 
+#define ORANGE          0xFD20
+#define NARANJO         0x1358
+#define GREENYELLOW     0xAFE5 
+#define DARKGREEN       0x03E0
+#define WHITE           0xFFFF
+#define GRIS            0x5AEB 
+#define VIOLETA         0xFCFD
+#define DARKGREY        0x7BEF  
+#define AZULOSCURO      0x0005
+
+
+#define BARRA 4
+#define VOLUMEN BARRA*porcentaje
 
 ///////////////////////////////////////////////////////////             Tiempo               ///////////////////////////////////////////////////////////////
-
 
 #include <NTPClient.h>
 #include <WiFiUdp.h>
@@ -324,40 +270,14 @@ int activar_bt = 32;
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, NTP_ADDRESS, NTP_OFFSET, NTP_INTERVAL);
 
-///////////////////////////
-/*
-const char* ntpServer = "pool.ntp.org";
-const long  gmtOffset_sec = 3600;
-const int   daylightOffset_sec = 3600;
-
-void printLocalTime()
-{
-    tft.fillRect(112, 0, 104, 16, BLACK);
-    delay(1);
-  struct tm timeinfo;
-  if(!getLocalTime(&timeinfo)){
-    Serial.println("Failed to obtain time");
-    return;
-  }
-                         tft.setTextColor(WHITE);
-                      tft.setTextSize(2);
-                   tft.setCursor(120, 0);
-  tft.print(&timeinfo, "%H:%M:%S");
-}
-*/
-///////////////////////////
-
 /////////////////////////////////////////////////////////                 Setup                ///////////////////////////////////////////////////////
-
 void setup() {
 
 
 //////////////////// Servidor 1  /////////////
     WiFi.begin(ssid, password);
     server.begin(); 
-//////////////////////////////////////////////
-//  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
- // printLocalTime();
+
   /////////////////   OTA    ///////////////////
   Serial.println("Booting");
   WiFi.mode(WIFI_STA);
@@ -398,9 +318,6 @@ void setup() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
-
-///////////////////////    rotary 2     //////////////////
-
 //////////////////////////////////////////////
 
  pinMode(boton1,INPUT); 
@@ -411,10 +328,8 @@ void setup() {
 // pinMode(Bat, INPUT);
   pinMode(potPin, INPUT);
   pinMode(boton6, INPUT_PULLUP);
-
  pinMode(activar_bt, OUTPUT); 
-
-  
+ 
     Serial.begin(115200);
       SPI.begin();
   SPI.setFrequency( 40000000 );
@@ -432,12 +347,10 @@ void setup() {
 
    tft.drawRGBBitmap(100, 60, logo, 120, 105);
                    delay(1000);
-
                   tft.setTextColor(WHITE);  tft.setTextSize(2);
                   tft.setCursor(30, 10);
                     tft.print("Cargando ");
                        delay(350);
-                       
                   tft.setCursor(130, 10);
                       tft.setTextSize(2);
                       tft.setTextColor(VIOLETA);
@@ -456,29 +369,21 @@ void setup() {
  tft.setCursor(250, 10); tft.print("."); delay(200); 
  tft.setCursor(260, 10); tft.print("."); delay(200);
 
-
-                 //    tft.setCursor(110, 190);
                  tft.setCursor(110, 200);
                      tft.setTextColor(GREEN);
                       tft.print("CARGADO!");
                           delay(1500);
-
                     tft.fillScreen(BLACK);
                            aplicacion_radio();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   //     tft.drawRGBBitmap(0, 204, menu, 320, 34);
-  //        tft.drawRect(0, 202, 320, 38, GRIS);
-//            tft.drawRect(1, 203, 318, 36, GRIS);
+
     tft.setTextColor(DARKGREY);  tft.setTextSize(2);
     tft.setCursor(1, 0);
     tft.print(lista_conecciones[coneccion]);
-            //   tft.drawRGBBitmap(80, 0, wifi_bars, 17, 17);
                
         //////////////////////////////////////////////////////////
-
-       //     tft.drawRGBBitmap(232, 2, bateria, 24, 12);
 
     tft.setCursor(260, 0);
              tft.setTextColor(DARKGREY);
@@ -489,25 +394,21 @@ void setup() {
 
 delayMicroseconds(100);
 
-  tft.fillRect(1, 25, 97, 27, CYAN2);                   //// cuadro de visualizar el spectrum   /////////
+  tft.fillRect(1, 25, 97, 27, CYAN2);                   //// cuadro de visualizar los Kbps   /////////
    tft.drawRoundRect(0, 24, 99, 29, 3, WHITE); 
 
-  tft.fillRect(227, 25, 91, 27, CYAN2);                /////    cuadro de visualizar de volumen   ////////
+  tft.fillRect(227, 25, 91, 27, CYAN2);                /////    cuadro de visualizar el volumen   ////////
      tft.drawRoundRect(226, 24, 93, 29, 3, WHITE); 
-
 
  tft.setTextColor(WHITE);
           tft.setCursor(14, 38);
   tft.setTextSize(1);
-//  tft.print("Spectrum Aqui");
-
 
   tft.fillRect(104, 25, 117, 27, GRIS); 
    tft.drawRoundRect(103, 24, 119, 29, 3, WHITE);              ///////  cuadro de visualizar el elemento seleccionado ///////////
        tft.setTextColor(WHITE);
           tft.setCursor(116, 32);
   tft.setTextSize(2);
-
 
     tft.print(lista_aps[ap]);  
 tft.drawRect(9, 202, 37, 37, BLACK);
@@ -525,18 +426,13 @@ tft.drawRect(273, 203, 35, 35, BLACK);
        tft.drawRect(lista_cuadros[cuadro]-1, 202, 37, 37, WHITE);
        tft.drawRect(lista_cuadros[cuadro], 203, 35, 35, WHITE);
 
-
- //          tft.drawLine(0, 96, 320, 96, WHITE); 
- //          tft.fillRect(38, 59, 320, 32, BLACK); 
-
            
-}
+}  //Fin de Setup
 
 /////////////////////////////////////////////////////////                 Loop               ////////////////////////////////////////////////////////////
 
 void loop()
 {
-
 
 //////////////// Servidor 1  /////////////////
   // Esperamos a que se conecte un cliente
@@ -552,7 +448,6 @@ void loop()
     // Una petición http termina con línea en blanco.
     boolean currentLineIsBlank = true;
 
-    
     while (client.connected()) {  //Mientras que el cliente está conectado
       if (client.available()) {   //Si se recibe algun dato del cliente.
         char c = client.read();
@@ -563,7 +458,8 @@ void loop()
         // si se recibe un caracter de nueva línea (/n) y la siguiente línea 
         // es una líne en blanco entonces la petición http ha terminado y podemos
         // responder al cliente
-       
+
+////////////////////////////////////////////            el codigo de control desde una pagina HTML del servidor                ////////////////////////////////////////////
         if (c == '\n' && currentLineIsBlank) {
           // send a standard http response header
           client.println("HTTP/1.1 200 OK");
@@ -802,12 +698,12 @@ tft.drawRect(273, 203, 35, 35, BLACK);
     client.stop();
     Serial.println("Cliente desconectado");
   }
-//////////////////////////////////////////////
+                      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  /////////////////   OTA    ///////////////////
+////////////////////////   OTA    ///////////////////
   ArduinoOTA.handle();
   yield();
-////////////////////////////////////////////
+/////////////////////////////////////////////////////
   
 int lectura = analogRead(potPin);
  porcentaje = map(lectura, 0, 1023, 0, 5)+v;
@@ -822,23 +718,12 @@ int lectura = analogRead(potPin);
                  tft.fillRect(0, 53, 320, 43, BLACK); 
                   mp3.connecttohost(Serial.readString());
                 }*/
-///////////////////   rotary 3             ///////////////
 
+///////////////////////////////           mostrar el tiempo               /////////////////////////////
 
-//////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////////////
-
- // if (ap == 0){
-// printLocalTime();
                           displayData();
-                            
-//  }
- //
-// nivel_bateria();
-                             
-////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
   boton1State = digitalRead(boton1);
@@ -847,12 +732,10 @@ int lectura = analogRead(potPin);
   boton4State = digitalRead(boton4);
   boton5State = digitalRead(boton5);
   boton6State = digitalRead(boton6);
-
-
+  
                                                     ///////////////////////////////////////////////
                                                     //           Control de Canales              //
                                                     ///////////////////////////////////////////////
-
 if (boton6State == LOW){ 
   if (boton3State == HIGH){
     
@@ -924,8 +807,9 @@ estadoPass=pass;
 }
 }
 
-
-////////////////////////////////////////////       Seleccion de aplicaciones                  ///////////////////////////////////////////////////
+                                                    ///////////////////////////////////////////////////
+                                                    //          Seleccion de aplicaciones            //
+                                                    ///////////////////////////////////////////////////
 
 //if (boton6State == HIGH){ 
      if (boton1State == HIGH) 
@@ -1012,7 +896,7 @@ tft.drawRect(273, 203, 35, 35, BLACK);
 estadoAp=ap;
 estadoCuadro=cuadro;
 
-///////////////////////////////////////////////////////////////////////////////////////////////
+                             //////////////////////////////////////////
 
 if (ap == 0){
   if (boton3State == LOW){
@@ -1096,21 +980,11 @@ tft.drawLine(0, 96,320,96,WHITE);
     tft.drawRGBBitmap(274, 204, misc, 32, 32);
     tft.drawLine(0, 194,320,194,WHITE);
     
-   //  tft.drawRGBBitmap(0, 200, menu_info_azulmarino_cortado, 320, 40);
-//  tft.drawRGBBitmap(0, 97, menu_info_azulmarino, 320, 144);
-//  tft.drawRGBBitmap(0, 97, fondo_marino, 320, 96);
-//  tft.drawRGBBitmap(0, 97, menu_info_lineas, 320, 143);
-//    tft.drawLine(0, 198, 320, 198, WHITE);
-
             tft.setCursor(0, 101);
-//  tft.setTextColor(NARANJO);
-//  tft.setTextColor(ORANGE);
-//  tft.setTextColor(YELLOW, CYAN2);
+
     tft.setTextColor(YELLOW);
   tft.setTextSize(2);
   tft.println(info);
-/* tft.setCursor(0, 161);
-  tft.print(WiFi.localIP());   //al movil: 192.168.43.185 */
 
  }
 
@@ -1129,15 +1003,6 @@ tft.fillRect(0, 184, 320, 10, BLUE);
   tft.setTextSize(1);
  //   tft.println(String(info)+"sec");             // info is the duration of advertising
 }
-/*
-  void vs1053_icyurl(const char *info){               // called from vs1053
-tft.fillRect(0, 174, 320, 10, BLUE);
-            tft.setCursor(0, 174);
-    tft.setTextColor(DARKGREY);
-  tft.setTextSize(1);
-  tft.println(info);                          // info contains the URL
-}
-*/
 
 void vs1053_bitrate(const char *br){        // called from vs1053
 tft.fillRect(1, 25, 97, 27, CYAN2);
@@ -1146,6 +1011,7 @@ tft.fillRect(1, 25, 97, 27, CYAN2);
   tft.setTextSize(2);
       tft.println(String(br)+"kb/s");          // bitrate of current stream
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void aplicacion_ajustes(){
@@ -1172,11 +1038,10 @@ tft.setCursor(0, 61);
     tft.print("- ");    tft.print(lista_conecciones[coneccion]);
     
 
-                                                    ///////////////////////////////////////////////
-                                                    //           Control de Conecciones              //
-                                                    ///////////////////////////////////////////////
+                                                    ////////////////////////////////////////////////////
+                                                    //           selector de Conecciones              //
+                                                    ///////////////////////////////////////////////////
 
-////////////////////////////
 
                                if (ap == 0){
                           if (boton1State == HIGH){
@@ -1191,7 +1056,6 @@ tft.setCursor(0, 61);
                                }
                                
 }
-///////////////////////////////
 
 /////////////////////////////////////////////
 
@@ -1211,7 +1075,6 @@ tft.setTextColor(NARANJO);
 tft.print("PROXIMAMENTE");
  tft.drawRGBBitmap(200,115,icono_sd,64,64);
 }
-
 
 /////////////////////////////////////////////
 void aplicacion_radio() {
@@ -1237,7 +1100,6 @@ tft.drawLine(0, 96,320,96,WHITE);
   tft.println(info);
   
 }
-
 
 /////////////////////////////////////////////
 
@@ -1294,7 +1156,6 @@ tft.print("PROXIMAMENTE");
  tft.drawRGBBitmap(200,115,icono_otros,64,64);
 }
 
-
 ///////////////////////////////////////////////
 
 void displayData() {
@@ -1310,6 +1171,4 @@ String formattedTime = timeClient.getFormattedTime();
              tft.print(formattedTime);     
 }
 
-///////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////
+              ////////////////////////////////////////////////         FIN         ////////////////////////////////////////////////////
